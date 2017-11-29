@@ -7,24 +7,35 @@ var states = {
     game: "game",
 };
 
-var gameState = function(game){
-    
-};
 
-gameState.prototype = {
+var gameState =  {
     
     preload: function () {
         
     },
     
+    var cursors;
+    var floor;
+
     create: function () {
-        
+        game.physics.startSystem(Phaser.Physics.ARCADE);
+        cursors = game.input.keyboard.createCursorKeys();
+        game.stage.backgroundColor = '#044';
+        floor = new Phaser.Rectangle(300, 100, 150, 50);
     },
 
     update: function () {
         
     },
+
+    function render () {
+        game.debug.geom(floor,'#F44456');
+    },
 };
+
+
+game.state.add(states.game, gameState);
+game.state.start(states.game);
 
 //Original Code
 
@@ -276,11 +287,3 @@ const player = {
 playerReset();
 updateScore();
 update();
-
-
-
-var game = new Phaser.Game(canvas.width, canvas.height, Phaser.CANVAS, 'game');
-game.state.add(states.game, gameState);
-game.state.start(states.game);
-
-
