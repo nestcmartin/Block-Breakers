@@ -67,20 +67,38 @@ var arena = {
   },
 
   arenaSweep: function (){
+
     let rowCount = 1;
-    outer:  for (let y = arena.matrix.length - 1; y > 0; --y) {
-              for (let x = 0; x < arena.matrix[y].length; ++x) {
-                  if (arena.matrix[y][x] === 0) {
-                      continue outer;
-                  }
-              }
-              const row = arena.splice(y, 1)[0].fill(0);
-              arena.unshift(row);
-              ++y;
+
+    for(let j = 1; j < arena.matrix.length; j++){
+      if(!arena.matrix[j].includes(0)){
+        arena.matrix[j].fill(0);
+        arena.clearRow(j);
+      }
+    }
 
     player.score += rowCount * 10;
     rowCount *= 2;
+  },
+
+  clearRow: function (actual){
+    while(arena.emptyRow(actual - 1)){
+      arena.matrix[actual] = arena.matrix[actual - 1];
+      actual--;
     }
+    arena.matrix[actual].fill(0);
+  },
+
+  emptyRow: function(row){
+    let col = 0;
+    do {
+      col++;
+      if (arena.matrix[row][col] !== 0){
+        return true;
+      }
+    } while (arena.matrix[row][col] === 0);
+
+    return false;
   }
 
 }
