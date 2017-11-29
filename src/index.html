@@ -54,31 +54,219 @@ var arena = {
     for(let i = 0; i < this.h; i++){
       this.matrix.push(new Array(this.w).fill(0));
     }
+  },
+
+  merge: function (arena, player){
+    for(let y = 0; y < player.matrix.length; y++){
+      for(let x = 0; x < player.matrix[1].length; x++){
+        if (player.matrix[y][x] !== 0) {
+          arena.matrix[y + player.pos.y] [x + player.pos.x] = player.matrix[y][x];
+        }
+      }
+    }
+  },
+
+  arenaSweep: function (){
+    let rowCount = 1;
+    outer:  for (let y = arena.length -1; y > 0; --y) {
+              for (let x = 0; x < arena[y].length; ++x) {
+                  if (arena[y][x] === 0) {
+                      continue outer;
+                  }
+              }
+
+    const row = arena.splice(y, 1)[0].fill(0);
+    arena.unshift(row);
+    ++y;
+
+    player.score += rowCount * 10;
+    rowCount *= 2;
+    }
   }
+
 }
 
 var player = {
       pos: {x: 0, y: 0},
+      score: 0,
       matrix: null,
+
+      playerDrop: function (){
+        this.pos.y++;
+        if (logic.collide(arena, player)) {
+            this.pos.y--;
+            arena.merge(arena, player);
+            player.playerReset();
+            arena.arenaSweep();
+            //updateScore();
+        }
+
+        logic.dropCounter = 0;
+      },
+
+      playerMove: function (dir){
+        player.pos.x += dir;
+        if(logic.collide(arena, player)) {
+          player.pos.x -= dir;
+        }
+      },
+
+      createPiece: function (type){
+          if (type === 'I') {
+              return [
+                  [0, 1, 0, 0],
+                  [0, 1, 0, 0],
+                  [0, 1, 0, 0],
+                  [0, 1, 0, 0],
+              ];
+          } else if (type === 'L') {
+              return [
+                  [0, 2, 0],
+                  [0, 2, 0],
+                  [0, 2, 2],
+              ];
+          } else if (type === 'J') {
+              return [
+                  [0, 3, 0],
+                  [0, 3, 0],
+                  [3, 3, 0],
+              ];
+          } else if (type === 'O') {
+              return [
+                  [4, 4],
+                  [4, 4],
+              ];
+          } else if (type === 'Z') {
+              return [
+                  [5, 5, 0],
+                  [0, 5, 5],
+                  [0, 0, 0],
+              ];
+          } else if (type === 'S') {
+              return [
+                  [0, 6, 6],
+                  [6, 6, 0],
+                  [0, 0, 0],
+              ];
+          } else if (type === 'T') {
+              return [
+                  [0, 7, 0],
+                  [7, 7, 7],
+                  [0, 0, 0],
+              ];
+          }
+      },
+
+      playerReset: function (){
+        const pieces = 'TJLOSZI';
+        player.matrix = player.createPiece(pieces[pieces.length * Math.random() | 0]);
+        player.pos.y = 0;
+        player.pos.x = (arena.matrix[0].length / 2 | 0) -
+                       (player.matrix[0].length / 2 | 0);
+        if (logic.collide(arena, player)) {
+            for(let i = 0; i < arena.h; i++){
+              arena.matrix[i].fill(0);
+            }
+            player.score = 0;
+            //updateScore();
+        }
+      },
+
+      rotate: function (matrix, dir){
+        for(let y = 0; y < matrix.length; y++) {
+          for(let x = 0; x < y; x++) {
+            [
+              matrix[x][y],
+              matrix[y][x],
+            ] = [
+              matrix[y][x],
+              matrix[x][y],
+            ];
+          }
+        }
+
+        if (dir > 0) {
+          matrix.forEach(row => row.reverse());
+        } else {
+          matrix.reverse();
+        }
+      },
+
+      playerRotate: function (dir){
+          const pos = player.pos.x;
+          let offset = 1;
+          player.rotate(player.matrix, dir);
+          while (collide(arena, player)) {
+              player.pos.x += offset;
+              offset = -(offset + (offset > 0 ? 1 : -1));
+              if (offset > player.matrix[0].length) {
+                  rotate(player.matrix, -dir);
+                  player.pos.x = pos;
+                  return;
+              }
+          }
+      }
 }
 
 var renderer = {
-  drawMatrix: function(matrix) {
-    for(let y = 0; y < matrix.length; y++) {
-      for(let x = 0; x < matrix[1].length; x++) {
+  drawMatrix: function(matrix, offset) {
+    for(let y = 0; y < matrix.length; y++){
+      for(let x = 0; x < matrix[1].length; x++){
 
-        block.x=x*40;
-        block.y=y*40;
+        block.x = (x + offset.x)*40;
+        block.y = (y + offset.y)*40;
 
         if(matrix[y][x] !== 0) {
           game.debug.geom(block, colors[matrix[y][x]]);
         }
-        else {
-          game.debug.geom(block, colors[3]);
-        }
       } 
     }
+  },
+
+  draw: function(){
+    renderer.drawMatrix(arena.matrix, {x: 0, y: 0});
+    renderer.drawMatrix(player.matrix, player.pos);
   }
+}
+
+var logic = { //La lógica del juego, no el segundo mejor MC del mundo después de Kendrick
+  
+  dropCounter: 0,
+  lastTime: 0,
+  dropInterval: 1000,
+
+  //Devuelve "true" si hay colisión entre piezas del tablero "arena" y nuestra pieza
+  collide: function (arena, player) {
+    const m = player.matrix;
+    const o = player.pos;
+    for (let y = 0; y < m.length; y++) {
+      for (let x = 0; x < m[y].length; x++) {
+        if (m[y][x] !== 0 &&
+           (arena.matrix[y + o.y] &&
+            arena.matrix[y + o.y][x + o.x]) !== 0) {
+            return true;
+        }
+      }
+    }
+    return false;
+  },
+
+  update: function(time = 0){
+      const deltaTime = time - this.lastTime;
+      this.dropCounter += deltaTime;
+      if (this.dropCounter > this.dropInterval) {
+          player.playerDrop();
+      }
+
+      this.lastTime = time;
+
+      //renderer.draw();
+      //requestAnimationFrame(update);
+  },
+
+  /*updateScore: function(){
+    document.getElementById('score').innerText = player.score;
+  }*/
 }
 
 function preload() {
@@ -86,23 +274,18 @@ function preload() {
 
 function create() {  
     block = new Phaser.Rectangle(0,0, 40, 40);
-    player.matrix = [
-            [0, 7, 0],
-            [7, 7, 7],
-            [0, 0, 0],
-      ];
-      arena.createMatrix();
+    arena.createMatrix();
+    player.playerReset();
 }
 
 function update() {
-
+  logic.update();
+  //player.playerDrop();
 }
 
 function render () {
-  renderer.drawMatrix(arena.matrix);
-  renderer.drawMatrix(player.matrix);
-  
 
+  renderer.draw();
   /*DEBBUGING
   var x = 32;
   var y = 0;
