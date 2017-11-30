@@ -72,7 +72,6 @@ var arena = {
 
     for(let j = 1; j < arena.matrix.length; j++){
       if(!arena.matrix[j].includes(0)){
-        arena.matrix[j].fill(0);
         arena.clearRow(j);
       }
     }
@@ -82,23 +81,24 @@ var arena = {
   },
 
   clearRow: function (actual){
-    while(arena.emptyRow(actual - 1)){
-      arena.matrix[actual] = arena.matrix[actual - 1];
+    do {
+      this.matrix[actual] = this.matrix[actual - 1].slice();
       actual--;
-    }
-    arena.matrix[actual].fill(0);
+    } while(!arena.emptyRow(actual - 1) && actual > 0);
+
+    this.matrix[actual].fill(0);
   },
 
-  emptyRow: function(row){
+  emptyRow: function(fila){
     let col = 0;
     do {
-      col++;
-      if (arena.matrix[row][col] !== 0){
-        return true;
+      if (this.matrix[fila][col] !== 0){
+        return false;
       }
-    } while (arena.matrix[row][col] === 0);
+      col++;
+    } while (col < this.w);
 
-    return false;
+    return true;
   }
 
 }
@@ -279,6 +279,17 @@ var logic = { //La lógica del juego, no el segundo mejor MC del mundo después 
   }*/
 }
 
+var sounds = {
+
+  musica: null,
+
+  update: function(){
+    if(!this.musica.isPlaying){
+      this.musica.play();
+    }
+  }
+}
+
 document.addEventListener('keydown', event => {
   if (event.keyCode === 37){
     player.playerMove(-1);
@@ -294,16 +305,20 @@ document.addEventListener('keydown', event => {
 });
 
 function preload() {
+  game.load.audio('ErMusicote', ['assets/sounds/COMLoop.ogg']);
 }
 
 function create() {  
     block = new Phaser.Rectangle(0,0, 40, 40);
     arena.createMatrix();
     player.playerReset();
+    sounds.musica = game.add.audio('ErMusicote');
+    //sounds.musica.play('', 0, 1, true);
 }
 
 function update() {
   logic.update();
+  sounds.update();
 }
 
 function render () {
