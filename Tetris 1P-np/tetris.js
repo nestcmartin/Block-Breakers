@@ -2,6 +2,9 @@ class Tetris
 {
     constructor(element)
     {
+
+        var self = this;
+
         this.element = element;
         this.canvas = element.querySelector('canvas');
         this.context = this.canvas.getContext('2d');
@@ -22,13 +25,13 @@ class Tetris
         ];
 
         let lastTime = 0;
-        const update = (time = 0) => {
+        function update(time = 0) {
             const deltaTime = time - lastTime;
             lastTime = time;
 
-            this.player.update(deltaTime);
+            self.player.update(deltaTime);
 
-            this.draw();
+            self.draw();
             requestAnimationFrame(update);
         };
         update();
