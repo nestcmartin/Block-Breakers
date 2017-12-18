@@ -8,3 +8,7 @@ Hemos implementado una versión que funciona correctamente con Phaser.
 Hemos mejorado la versión sin Phaser para un jugador.
 
 Hemos extendido la versión sin Phaser para que funcione para dos jugadores.
+
+Hemos implementado los niveles y la cola de piezas para la versión de 1 jugador con Phaser.
+
+Hemos desarrollado una web para las presentaciones.
