@@ -1,10 +1,10 @@
 <!doctype html> 
 <html lang="en"> 
 <head> 
-	<meta charset="UTF-8" />
-	<title>Block Breakers</title>
-  	<script type="text/javascript" src="js/phaser.min.js"></script>
-  	<script src="js/blockBreakers.js"></script>
+  <meta charset="UTF-8" />
+  <title>Block Breakers</title>
+    <script type="text/javascript" src="js/phaser.min.js"></script>
+    <script src="js/blockBreakers.js"></script>
     <style>
       body {
         background: #202028;
@@ -30,20 +30,21 @@
 <div id="game_canvas"></div>
 <script type="text/javascript">
 
-var game = new Phaser.Game(480, 800, Phaser.CANVAS, 'game_canvas', { preload: preload, create: create, update: update, render: render });
+var anchoArena = 480;
+var altoArena = 800;
+
+var game = new Phaser.Game( (anchoArena + (2*anchoArena/3)) , altoArena, Phaser.CANVAS, 'game_canvas', { preload: preload, create: create, update: update, render: render });
 
 const colors = [
     null,
-    '#FF0D72',
-    '#0DC2FF',
-    '#0DFF72',
-    '#F538FF',
-    '#FF8E0D',
-    '#FFE138',
-    '#3877FF',
+    '0xFF0D72',
+    '0x0DC2FF',
+    '0x0DFF72',
+    '0xF538FF',
+    '0xFF8E0D',
+    '0xFFE138',
+    '0x3877FF',
 ];
-
-var block;
 
 var arena = {
   w: 12,
@@ -73,11 +74,12 @@ var arena = {
     for(let j = 1; j < arena.matrix.length; j++){
       if(!arena.matrix[j].includes(0)){
         arena.clearRow(j);
+        logic.updateLevel();
+        player.score += rowCount * 10;
+        rowCount *= 2;
       }
     }
-
-    player.score += rowCount * 10;
-    rowCount *= 2;
+    logic.updateRenderArena();
   },
 
   clearRow: function (actual){
@@ -107,6 +109,9 @@ var player = {
       pos: {x: 0, y: 0},
       score: 0,
       matrix: null,
+      nextMatrix: null,   //Siguiente pieza en la pila
+      nextPieces: ['N'],  //Pila de piezas
+      topPiecePtr: 0,     //Puntero a cima de pila
 
       playerDrop: function (){
         this.pos.y++;
@@ -115,7 +120,6 @@ var player = {
             arena.merge(arena, player);
             player.playerReset();
             arena.arenaSweep();
-            //updateScore();
         }
 
         logic.dropCounter = 0;
@@ -128,55 +132,84 @@ var player = {
         }
       },
 
-      createPiece: function (type){
-          if (type === 'I') {
-              return [
-                  [0, 1, 0, 0],
-                  [0, 1, 0, 0],
-                  [0, 1, 0, 0],
-                  [0, 1, 0, 0],
-              ];
-          } else if (type === 'L') {
-              return [
-                  [0, 2, 0],
-                  [0, 2, 0],
-                  [0, 2, 2],
-              ];
-          } else if (type === 'J') {
-              return [
-                  [0, 3, 0],
-                  [0, 3, 0],
-                  [3, 3, 0],
-              ];
-          } else if (type === 'O') {
-              return [
-                  [4, 4],
-                  [4, 4],
-              ];
-          } else if (type === 'Z') {
-              return [
-                  [5, 5, 0],
-                  [0, 5, 5],
-                  [0, 0, 0],
-              ];
-          } else if (type === 'S') {
-              return [
-                  [0, 6, 6],
-                  [6, 6, 0],
-                  [0, 0, 0],
-              ];
-          } else if (type === 'T') {
-              return [
-                  [0, 7, 0],
-                  [7, 7, 7],
-                  [0, 0, 0],
-              ];
+      createPiece: function (){  //Se generan nuevos grupos de piezas de 7 en 7 como en tetris original. La pieza nextMatrix pasa a matrix, la actual en juego, y se genera nueva nextMatrix
+        const pieces = 'TJLOSZI';
+
+        if (this.nextPieces.length < 2){
+          for(let i = 0; i < 7; i++){
+            this.nextPieces.push(pieces[pieces.length * Math.random() | 0]);
+            this.topPiecePtr++;
           }
+        }
+
+        this.matrix = this.nextMatrix; //Paso de siguiente a actual
+        logic.updateRenderNext();
+
+        if (this.nextPieces[this.topPiecePtr] === 'I') {  //Salida de pieza siguiente
+            this.nextPieces.pop();
+            this.topPiecePtr--;
+            return [
+                [0, 1, 0, 0],
+                [0, 1, 0, 0],
+                [0, 1, 0, 0],
+                [0, 1, 0, 0],
+            ];
+        } else if (this.nextPieces[this.topPiecePtr] === 'L') {
+            this.nextPieces.pop();
+            this.topPiecePtr--;
+            return [
+                [0, 2, 0],
+                [0, 2, 0],
+                [0, 2, 2],
+            ];
+        } else if (this.nextPieces[this.topPiecePtr] === 'J') {
+            this.nextPieces.pop();
+            this.topPiecePtr--;
+            return [
+                [0, 3, 0],
+                [0, 3, 0],
+                [3, 3, 0],
+            ];
+        } else if (this.nextPieces[this.topPiecePtr] === 'O') {
+            this.nextPieces.pop();
+            this.topPiecePtr--;
+            return [
+                [4, 4],
+                [4, 4],
+            ];
+        } else if (this.nextPieces[this.topPiecePtr] === 'Z') {
+            this.nextPieces.pop();
+            this.topPiecePtr--;
+            return [
+                [5, 5, 0],
+                [0, 5, 5],
+                [0, 0, 0],
+            ];
+        } else if (this.nextPieces[this.topPiecePtr] === 'S') {
+            this.nextPieces.pop();
+            this.topPiecePtr--;
+            return [
+                [0, 6, 6],
+                [6, 6, 0],
+                [0, 0, 0],
+            ];
+        } else if (this.nextPieces[this.topPiecePtr] === 'T') {
+            this.nextPieces.pop();
+            this.topPiecePtr--;
+            return [
+                [0, 7, 0],
+                [7, 7, 7],
+                [0, 0, 0],
+            ];
+        }
+        
       },
 
       playerReset: function (){
-        const pieces = 'TJLOSZI';
-        player.matrix = player.createPiece(pieces[pieces.length * Math.random() | 0]);
+        player.nextMatrix = player.createPiece();
+        if(player.matrix === null){  //Solo se ejecuta en primera creación de player, para crear una matrix y una nextMatrix iniciales
+          player.nextMatrix = player.createPiece();
+        }
         player.pos.y = 0;
         player.pos.x = (arena.matrix[0].length / 2 | 0) -
                        (player.matrix[0].length / 2 | 0);
@@ -185,7 +218,6 @@ var player = {
               arena.matrix[i].fill(0);
             }
             player.score = 0;
-            //updateScore();
         }
       },
 
@@ -226,23 +258,68 @@ var player = {
 }
 
 var renderer = {
-  drawMatrix: function(matrix, offset) {
+
+  HUDOnScreen: false,
+
+
+  drawMatrix: function(matrix, offset, group) {
+
+    let posX = 0;
+    let posY = 0;
     for(let y = 0; y < matrix.length; y++){
       for(let x = 0; x < matrix[1].length; x++){
 
-        block.x = (x + offset.x)*40;
-        block.y = (y + offset.y)*40;
+        posX = (x + offset.x)*anchoArena/12;
+        posY = (y + offset.y)*altoArena/20;
 
         if(matrix[y][x] !== 0) {
-          game.debug.geom(block, colors[matrix[y][x]]);
+
+          if(group === 0){
+            renderer.drawPlayerBlock(colors[matrix[y][x]], posX, posY);
+            playerPiece.add(graphicsPlayer);
+          } else {
+            renderer.drawBlock(colors[matrix[y][x]], posX, posY);
+            if (group === 1){
+              arenaPieces.add(graphics);
+            } else if (group === 2){
+              nextPieces.add(graphics);
+            }
+          }          
         }
       } 
     }
   },
 
+  drawBlock: function(colour, posX, posY){
+    graphics.lineStyle(2, 0xFFFFFF, 1);
+    graphics.beginFill(colour, 1);
+    graphics.drawRect(posX, posY, anchoArena/12, altoArena/20);
+    graphics.endFill();
+  },
+
+  drawPlayerBlock: function(colour, posX, posY){
+    graphicsPlayer.lineStyle(2, 0xFFFFFF, 1);
+    graphicsPlayer.beginFill(colour, 1);
+    graphicsPlayer.drawRect(posX, posY, anchoArena/12, altoArena/20);
+    graphicsPlayer.endFill();
+  },
+
+  drawHUD: function(){
+    graphicsHUD.lineStyle(2, 0xFFFFFF, 1);
+    graphicsHUD.drawRect(0, 0, anchoArena, altoArena);
+    graphicsHUD.drawRect( ((16*anchoArena/12) - 4*anchoArena/24), altoArena/40, (5*anchoArena/12), (5*altoArena/20));
+    HUD.add(graphicsHUD);
+    HUDOnScreen = true;
+  },
+
   draw: function(){
-    renderer.drawMatrix(arena.matrix, {x: 0, y: 0});
-    renderer.drawMatrix(player.matrix, player.pos);
+    logic.updateRenderPlayer();
+    renderer.drawMatrix(player.matrix, player.pos, 0);
+    renderer.drawMatrix(arena.matrix, {x: 0, y: 0}, 1);    
+    renderer.drawMatrix(player.nextMatrix, {x: 15, y: 1}, 2);
+    if(render.HUDOnScreen != true){
+      renderer.drawHUD();
+    }
   }
 }
 
@@ -250,6 +327,7 @@ var logic = { //La lógica del juego, no el segundo mejor MC del mundo después 
   
   dropCounter: 0,
   dropInterval: 1000,
+  levelCounter: 0,
 
   //Devuelve "true" si hay colisión entre piezas del tablero "arena" y nuestra pieza
   collide: function (arena, player) {
@@ -274,9 +352,28 @@ var logic = { //La lógica del juego, no el segundo mejor MC del mundo después 
     }
   },
 
-  /*updateScore: function(){
-    document.getElementById('score').innerText = player.score;
-  }*/
+  updateRenderPlayer: function(){
+    graphicsPlayer.clear();
+  },
+
+  updateRenderNext: function(){
+    graphics.clear();
+  },
+
+  updateRenderArena: function(){
+    graphics.clear();
+  },
+
+  updateLevel: function(){
+    this.levelCounter++;
+    if( this.levelCounter >= 7){
+      this.dropInterval -= 30;
+    }
+  },
+
+  updateScore: function(){
+    game.debug.text("Puntos: " + player.score, (anchoArena + (anchoArena/3)), (altoArena - (2*altoArena/3)));
+  }
 }
 
 var sounds = {
@@ -285,12 +382,23 @@ var sounds = {
 
   update: function(){
     if(!this.musica.isPlaying){
-      this.musica.play();
+      this.musica.play('', 0, 10, true);
     }
   }
 }
 
+var graphics;
+var graphicsPlayer;
+var graphicsHUD;
+//var grid;
+//var foreground;
+var playerPiece;
+var arenaPieces;
+var nextPieces;
+var HUD;
+
 document.addEventListener('keydown', event => {
+
   if (event.keyCode === 37){
     player.playerMove(-1);
   } else if (event.keyCode === 39) {
@@ -305,25 +413,38 @@ document.addEventListener('keydown', event => {
 });
 
 function preload() {
-  game.load.audio('ErMusicote', ['assets/sounds/COMLoop.ogg']);
+  game.load.audio('music', ['assets/sounds/music2.ogg']);
+  //game.load.image('grid', 'images/Grid.png');
 }
 
 function create() {  
-    block = new Phaser.Rectangle(0,0, 40, 40);
+    //game.stage.backgroundColor = '#0072bc';  //Para ver la grid sobre un fondo de color
+    
+    playerPiece = game.add.group();
+    arenaPieces = game.add.group();
+    nextPieces = game.add.group();
+    HUD = game.add.group();
+    graphics = game.make.graphics();
+    graphicsPlayer = game.make.graphics();
+    graphicsHUD = game.make.graphics();
     arena.createMatrix();
     player.playerReset();
-    sounds.musica = game.add.audio('ErMusicote');
-    //sounds.musica.play('', 0, 1, true);
+    logic.update();
+    sounds.musica = game.add.audio('music');
+    //sounds.musica.play('', 0, 10, true);
+    //grid = game.add.sprite(0, 0, 'grid');
+    //foreground.add(grid);
 }
 
 function update() {
   logic.update();
   sounds.update();
+  //game.world.bringToTop(foreground);
 }
 
 function render () {
-
   renderer.draw();
+  logic.updateScore();
   /*DEBBUGING
   var x = 32;
   var y = 0;
