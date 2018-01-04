@@ -19,8 +19,8 @@ var score = 0;				// puntos totales acumulados
 var scoreIncrement = 50;	// puntos recibidos por linea completada
 var scoreLevelPlus = 25;	// aumento de puntuacion por nivel completado
 var completedLines = 0;		// numero de lineas completadas
-var linesThreshold = 3;		// numero de lineas necesarias para completar nivel
-var dropSpeedUp = 100;		// aumento de velocidad por nivel completado (ms)
+var linesThreshold = 10;	// numero de lineas necesarias para completar nivel
+var dropSpeedUp = 90;		// aumento de velocidad por nivel completado (ms)
 
 // Jugabilidad
 var fallenValue = 1;					// valor que toman en la matriz las casillas ocupadas
@@ -79,9 +79,11 @@ var GameScene = {
 
 	audioManager: {
 		soundOn: true,
-		moveSE: null,
-		winSE: null,
-		gameoverSE: null,
+		moveSound: null,
+		clickSound: null,
+		levelSound: null,
+		winSound: null,
+		gameoverSound: null,
 		music: null,
 
 		playMusic: function() {
@@ -111,7 +113,9 @@ var GameScene = {
 		this.game.load.image('bricks', 'assets/bricks.png');
 		this.game.load.spritesheet('blocks','assets/blocks.png', blockSize, blockSize, nTypes + 1);
     	this.game.load.spritesheet('sound','assets/sound.png', 32, 32);
-    	this.game.load.audio('move','assets/sound/move.mp3','assets/sound/move.ogg');
+    	this.game.load.audio('move','assets/sound/move.mp3','assets/sound/move.ogg');    	
+    	this.game.load.audio('click','assets/sound/click.mp3','assets/sound/click.ogg');	
+    	this.game.load.audio('level','assets/sound/level.mp3','assets/sound/level.ogg');
     	this.game.load.audio('win','assets/sound/win.mp3','assets/sound/win.ogg');
     	this.game.load.audio('gameover','assets/sound/gameover.mp3','assets/sound/gameover.ogg');
 	},
@@ -186,7 +190,9 @@ var GameScene = {
 	    timer.start();
 
 	    // Inicializacion del sistema de audio
-	    GameScene.audioManager.moveSound = this.game.add.audio('move');
+	    GameScene.audioManager.moveSound = this.game.add.audio('move');	    
+	    GameScene.audioManager.clickSound = this.game.add.audio('click');
+	    GameScene.audioManager.levelSound = this.game.add.audio('level');
 	    GameScene.audioManager.winSound = this.game.add.audio('win');
 	    GameScene.audioManager.gameOverSound = this.game.add.audio('gameover');
 	    GameScene.audioManager.music = this.game.add.audio('music');
@@ -266,7 +272,10 @@ var GameScene = {
 	    	// Añadimos todas las lineas de nuestro tetromino a una lista
 	    	// Realizamos el merge del tetronimo y el tablero de juego
 	    	// Comprobamos si alguna de las lineas que ocupa nuestro tetromino esta compelta
+	    	GameScene.audioManager.playSound(GameScene.audioManager.clickSound);
+
 	        var lines = [];
+
 	        for(let i = 0; i < tetromino.cells.length; i++)
 	        {
 	            if (lines.indexOf(tetromino.cells[i][1]) == -1) lines.push(tetromino.cells[i][1]);
@@ -277,6 +286,7 @@ var GameScene = {
 	            arena[x][y] = fallenValue;
 	            arenaSprites[tetromino.cells[i][0]][tetromino.cells[i][1]] = tetromino.sprites[i];
 	        }
+
 	        this.checkLines(lines);
 	        this.manageTetrominos();
     	}
@@ -539,8 +549,12 @@ function updateScore() {
 function updateTimer() {
     if(completedLines % linesThreshold == 0) 
     {
-    	level++;
-        loop.delay -= dropSpeedUp;
+    	if(level < 9)
+    	{
+    		level++;
+        	loop.delay -= dropSpeedUp;
+        	GameScene.audioManager.playSound(GameScene.audioManager.levelSound);
+    	}    	    	
         scoreIncrement += scoreLevelPlus;
     }
 }

@@ -14,6 +14,9 @@ var MenuScene = {
 	    this.button = this.game.add.button(this.game.world.centerX, 400, 'button', this.startGame, this, 0, 2, 1);
 	    this.button.anchor.setTo(0.5);
 
+	    this.menuMusic = this.game.add.audio('menuMusic');
+	    this.menuMusic.play();
+
 	    console.log("Menu State success!");
 	},
 
@@ -23,5 +26,6 @@ var MenuScene = {
 
 	startGame() {
 	    this.game.state.start('game');
+	    this.menuMusic.stop();
 	}
 };

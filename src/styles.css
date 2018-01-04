@@ -8,21 +8,21 @@ body {
   margin: 0;
   font-family: Courier, 'Courier New', monospace;
   font-size: 1.6rem;
-  background: #fff;
+  background: #000;
   color: #000;
 }
 
 a {
-  color: #c39;
+  font-family: Courier, 'Courier New', monospace;
+  font-size: 2rem;
+  color: #fff;
 }
 
 main {
   margin: 2rem 0;
   text-align: center;
-}
-
-#game {
-  border: 1px solid #333;
+  position: relative;
+  top: 10vh;
 }
 
 footer {

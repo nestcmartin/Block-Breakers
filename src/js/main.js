@@ -37,7 +37,7 @@ var PreloaderScene = {
     this.game.load.bitmapFont('desyrel', 'assets/fonts/desyrel.png', 'assets/fonts/desyrel.xml');
     this.game.load.image('background', 'assets/starfield.png')
     this.game.load.spritesheet('button', 'assets/p1.png', 137, 37);
-    this.game.load.audio('music', 'assets/sound/tetris.mp3');
+    this.game.load.audio('menuMusic', 'assets/sound/menu.mp3');
     this.game.load.audio('music', 'assets/sound/tetris.mp3');
     console.log("Asset load success!");
   },
