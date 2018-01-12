@@ -26,7 +26,7 @@ var BootScene = {
 
 var PreloaderScene = {
   preload: function () {
-    //this.game.load.baseURL = 'https://nestorcabrero.github.io/TetrisPVLI/src/';
+    this.game.load.baseURL = 'https://nestorcabrero.github.io/TetrisPVLI/src/';
     this.game.load.crossOrigin = 'anonymous';
 
     this.loadingBar = this.game.add.sprite(0, 240, 'preloader_bar');
