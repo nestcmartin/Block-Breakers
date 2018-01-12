@@ -1,53 +1,10 @@
 'use strict';
 
-// Dimensiones
-var nBlocks = 4;										// numero de bloques por tetromino
-var nTypes = 7;											// numero de tipos de tetromino
-var blockSize = 32;										// tamaño de los bloques en pixels
-var nBlocksX = 12;										// numero de bloques de ancho
-var nBlocksY = 20;										// numero de bloques de alto
-var menuWidth = 300;									// tamaño del menu principal
-var gameWidth = 2 * nBlocksX * blockSize + menuWidth;	// ancho de la pantalla de juego
-var gameHeight = nBlocksY * blockSize + blockSize;		// alto de la pantalla de juego
-var scoreX = nBlocksX * blockSize + 90;					// posicion del marcador de puntuacion
+var arena2;
+var tetromino2;
+var loop2;
 
-// Dificultad
-var level = 0;				// nivel actual
-var score = 0;				// puntos totales acumulados
-var scoreIncrement = 50;	// puntos recibidos por linea completada
-var scoreLevelPlus = 25;	// aumento de puntuacion por nivel completado
-var completedLines = 0;		// numero de lineas completadas
-var linesThreshold = 10;	// numero de lineas necesarias para completar nivel
-var dropSpeedUp = 90;		// aumento de velocidad por nivel completado (ms)
-
-// Jugabilidad
-
-var dropTime = Phaser.Timer.SECOND;		// tiempo que tarde en caer una pieza (1 bloque por s)
-var movementLag = 50;					// retardo entre pulsaciones de tecla (ms)
-var moveTimer = 0;						// contador para evitar movimientos excesivamente rapidos
-var queue = [];							// cola de próximas piezas
-var nNext = 1;							// numero máximo de piezas en cola
-var pause = false;						// variable de control para pausar el juego
-var gameOver = false;					// variable de control para gestionar el fin de partida
-
-// UI
-var pauseText;		// texto del menú de pausa
-var scoreTitle;		// texto Scores
-var scoreText;		// puntuacion
-var linesText;		// texto Lines
-var shade;			// capa oscura
-
-// Varios
-var tetromino;		// el tetromino en juego
-var arena;			// el tableto de juego
-var audioManager;
-var cursors;		// el input de usuario (movimientos)
-var rotates;		// el input de usuario (rotaciones)
-var pauseButton;	// el input para el menu de pausa
-var timer;
-var loop;
-
-var GameScene = {
+var Game2Scene = {
 
 	preload: function() {
 		this.game.load.image('grid', 'assets/grid.png');
@@ -78,7 +35,8 @@ var GameScene = {
 		pauseButton.onDown.add(this.managePauseScreen, this);
 
 		// Creacion del tablero de juego
-		arena = new Arena();		
+		arena = new Arena();
+		arena2 = new Arena();	
 
 		this.background = this.game.add.tileSprite(0, 0, nBlocksX * blockSize, nBlocksY * blockSize, 'background')
 		this.background2 = this.game.add.tileSprite(nBlocksX * blockSize + menuWidth, 0, nBlocksX * blockSize, nBlocksY * blockSize, 'background')
@@ -117,7 +75,8 @@ var GameScene = {
 
 	    // Inicializacion del drop timer
 	    timer = this.game.time.events;
-	    loop = timer.loop(dropTime, this.drop, this);
+	    loop = timer.loop(dropTime, function() { this.drop(tetromino) }, this);
+	    loop2 = timer.loop(dropTime, function() { this.drop(tetromino2) }, this);
 	    timer.start();
 
 	    // Inicializacion del sistema de audio
@@ -174,34 +133,30 @@ var GameScene = {
 	manageTetrominos: function() {
 
 		// Gestionamos la cola de tetrominos
-		while(queue.length < nNext + 1) queue.unshift(new Tetromino());
-	    tetromino = queue.pop();
+		tetromino = new Tetromino();
+	    tetromino2 = new Tetromino();
 
 	    // Colocamos el tetromino en el tablero
 	    var start_x = Math.floor(nBlocksX / 2);
 	    var start_y = y_start[tetromino.shape];    
 	    var conflict = tetromino.materialize(start_x, start_y, true, this.game);
 
-	    // Gestionamos la pieza siguiente si no hay conflicto
+	    var start_x2 = Math.floor(gameWidth - nBlocksX / 2);
+	    var start_y2 = y_start[tetromino2.shape];    
+	    var conflict2 = tetromino2.materialize(start_x2, start_y2, true, this.game);
+	    
 	    if (conflict) this.gameOver();
-	    else
-	    {
-	        for (let i = 0; i < queue.length; i++) 
-	        {
-	            var s_x = Math.floor((scoreTitle.x + scoreTitle.textWidth / 2) / 32);
-	            var s_y = 14;
-	            queue[i].materialize(s_x, s_y, false, this.game);
-	        }
-	    }
+	    if (conflict2) this.gameOver();
 	},
 
+	// HAY QUE PASAR LA ARENA
 	// Funcion que gestiona la caida de los tetronimos
-	drop: function() {
+	drop: function(tetr) {
 
 	    if (pause || gameOver) { return; }
 
 	    // Desplazamos el tetromino hacia abajo
-	    if (tetromino.canMove(slide, "down")) tetromino.move(slide, slideCenter, "down");
+	    if (tetr.canMove(slide, "down")) tetr.move(slide, slideCenter, "down");
 	    else
 	    { 
 	    	// Si no podemos es porque se ha producido una colision con el suelo o con una linea
@@ -211,15 +166,15 @@ var GameScene = {
 
 	        var lines = [];
 
-	        for(let i = 0; i < tetromino.cells.length; i++)
+	        for(let i = 0; i < tetr.cells.length; i++)
 	        {
-	            if (lines.indexOf(tetromino.cells[i][1]) == -1) lines.push(tetromino.cells[i][1]);
+	            if (lines.indexOf(tetr.cells[i][1]) == -1) lines.push(tetr.cells[i][1]);
 
-	            var x = tetromino.cells[i][0];
-	            var y = tetromino.cells[i][1];
+	            var x = tetr.cells[i][0];
+	            var y = tetr.cells[i][1];
 
 	            arena.cells[x][y] = fallenValue;
-	            arena.arenaSprites[tetromino.cells[i][0]][tetromino.cells[i][1]] = tetromino.sprites[i];
+	            arena.arenaSprites[tetr.cells[i][0]][tetr.cells[i][1]] = tetr.sprites[i];
 	        }
 
 	        audioManager.playSound(audioManager.clickSound);
@@ -282,47 +237,3 @@ var GameScene = {
 		this.game.state.start('gameover');
 	}
 };
-
-
-<!--FUNCIONES AUXILIARES-->
-
-// Funcion que alinea el texto
-function alignText() {
-    var center = scoreTitle.x + scoreTitle.textWidth / 2;
-    scoreText.x = center - (scoreText.textWidth * 0.5);
-    linesText.x = center - (linesText.textWidth * 0.5);
-}
-
-// Función que actualiza la UI
-function updateScore() {
-    completedLines++;
-    score += scoreIncrement;
-
-    scoreText.text = score;
-    linesText.text = completedLines;
-
-    alignText();
-    updateTimer();
-}
-
-// Funcion que aumenta el nivel, la dificultad y la recompensa
-function updateTimer() {
-    if(completedLines % linesThreshold == 0) 
-    {
-    	if(level < 9)
-    	{
-    		level++;
-        	loop.delay -= dropSpeedUp;
-        	audioManager.playSound(audioManager.levelSound);
-    	}    	    	
-        scoreIncrement += scoreLevelPlus;
-    }
-}
-
-function selectLevel(level) {
-	for(let i = 0; i < level; i++)
-	{
-        loop.delay -= dropSpeedUp;
-        scoreIncrement += scoreLevelPlus;
-	}
-}

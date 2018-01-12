@@ -50,7 +50,7 @@ class Arena
 	            this.cleanLine(lines[i]);
 	            updateScore();
 
-	            GameScene.audioManager.playSound(GameScene.audioManager.winSound);
+	            audioManager.playSound(audioManager.winSound);
 	        }
 	    }
 

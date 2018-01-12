@@ -8,6 +8,7 @@ window.onload = function () {
   game.state.add('preloader', PreloaderScene);  // Carga de assets para el juego
   game.state.add('menu', MenuScene);  // Pantalla de menú principal
   game.state.add('game', GameScene);  // La escena de juego principal
+  game.state.add('game2', Game2Scene);  // La escena de juego pvp
   game.state.add('gameover', GameoverScene);  // El final del juego
 
   game.state.start('boot');
@@ -26,7 +27,7 @@ var BootScene = {
 
 var PreloaderScene = {
   preload: function () {
-    this.game.load.baseURL = 'https://nestorcabrero.github.io/TetrisPVLI/src/';
+    //this.game.load.baseURL = 'https://nestorcabrero.github.io/TetrisPVLI/src/';
     this.game.load.crossOrigin = 'anonymous';
 
     this.loadingBar = this.game.add.sprite(0, 240, 'preloader_bar');

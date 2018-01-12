@@ -127,7 +127,7 @@ class Tetromino
             this.center = [center_coord[0], center_coord[1]];
         }
 
-        if (dir !== "down") GameScene.audioManager.playSound(GameScene.audioManager.moveSound);
+        if (dir !== "down") audioManager.playSound(audioManager.moveSound);
     }
 }
 

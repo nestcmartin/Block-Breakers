@@ -30,6 +30,7 @@ var GameoverScene = {
 	},
 
 	restartGame() {
+		gameOver = false;
 	    this.game.state.start('menu');
 	}
 

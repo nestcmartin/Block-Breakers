@@ -42,20 +42,24 @@ var MenuScene = {
 	    this.selectLevelText = this.game.add.bitmapText(this.game.world.centerX, 340, 'videogame', 'Select Level:', 25);
 	    this.selectLevelText.anchor.setTo(0.5);
 
+	    var l = 0;
 	    for (let i = 400; i < gameHeight; i += 60)
 	    {
-	    	var button = this.game.add.button(this.game.world.centerX - 90, i, 'button', this.startGame, this, 0, 2, 1);
+	    	var button = this.game.add.button(this.game.world.centerX - 90, i, 'button', function() { this.startGameAtLevel(l) }, this, 0, 2, 1);
 	    	button.anchor.setTo(0.5);
+	    	l++;
 	    }
 
 	    for (let i = 400; i < gameHeight; i += 60)
 	    {
-	    	var button = this.game.add.button(this.game.world.centerX + 90, i, 'button', this.startGame, this, 0, 2, 1);
+	    	var button = this.game.add.button(this.game.world.centerX + 90, i, 'button', function() { this.startGameAtLevel(l) }, this, 0, 2, 1);
 	    	button.anchor.setTo(0.5);
+	    	l++;
 	    }
 	},
 
-	startGameAtLevel: function() {
+	startGameAtLevel: function(lv) {
+		level = lv;
 		this.startGame();
 	}
 };
