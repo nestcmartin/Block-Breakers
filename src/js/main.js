@@ -7,7 +7,8 @@ window.onload = function () {
   game.state.add('boot', BootScene);  // Carga de assets para la pantalla de carga
   game.state.add('preloader', PreloaderScene);  // Carga de assets para el juego
   game.state.add('menu', MenuScene);  // Pantalla de menú principal
-  game.state.add('game', GameScene);  // La escena de juego principal  
+  game.state.add('game', GameScene);  // La escena de juego principal
+  game.state.add('gameover', GameoverScene);  // El final del juego
 
   game.state.start('boot');
 };
@@ -37,7 +38,7 @@ var PreloaderScene = {
     this.game.load.bitmapFont('desyrel', 'assets/fonts/desyrel.png', 'assets/fonts/desyrel.xml');
     this.game.load.image('background', 'assets/starfield.png')
     this.game.load.spritesheet('button', 'assets/p1.png', 137, 37);    
-    this.game.load.spritesheet('button2', 'assets/p2.png', 137, 37);
+    this.game.load.spritesheet('button2', 'assets/p2.png', 137, 37);    
     this.game.load.audio('menuMusic', 'assets/sound/menu.mp3');
     this.game.load.audio('music', 'assets/sound/tetris.mp3');
     console.log("Asset load success!");

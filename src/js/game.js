@@ -12,7 +12,7 @@ var gameHeight = nBlocksY * blockSize + blockSize;	// alto de la pantalla de jue
 var scoreX = nBlocksX * blockSize + 90;				// posicion del marcador de puntuacion
 
 // Dificultad
-var level = 0;				// nivel actual
+var level;					// nivel actual
 var score = 0;				// puntos totales acumulados
 var scoreIncrement = 50;	// puntos recibidos por linea completada
 var scoreLevelPlus = 25;	// aumento de puntuacion por nivel completado
@@ -135,9 +135,7 @@ var GameScene = {
 	    this.grid = this.game.add.sprite(nBlocksX * blockSize + 97, 418, 'grid', 0);
 
 	    this.nextTitle.x = scoreTitle.x + scoreTitle.textWidth / 2 - (this.nextTitle.textWidth * 0.5);
-	    this.linesTitle.x = scoreTitle.x + scoreTitle.textWidth / 2 - (this.linesTitle.textWidth * 0.5);
-
-	    this.manageTetrominos();	   
+	    this.linesTitle.x = scoreTitle.x + scoreTitle.textWidth / 2 - (this.linesTitle.textWidth * 0.5);	   
 
 	    // Inicializacion del drop timer
 	    timer = this.game.time.events;
@@ -153,6 +151,10 @@ var GameScene = {
 	    GameScene.audioManager.music = this.game.add.audio('music');
 	    GameScene.audioManager.music.volume = 0.8;
 	    GameScene.audioManager.music.loopFull();
+
+	    for(let i = 0; i < level; i++) updateTimer();
+
+	    this.manageTetrominos();
 	},
 
 	update: function() {
@@ -252,13 +254,15 @@ var GameScene = {
 	gameOver: function() {
 	    gameOver = true;
 
-	    GameScene.audioManager.music.pause();
-	    GameScene.audioManager.playSound(GameScene.audioManager.gameOverSound);
-
 	    this.makeShade();
 
 	    this.gameover = this.game.add.bitmapText(this.game.world.centerX, this.game.world.centerY, 'videogame', 'GAME OVER', 64);
 	    this.gameover.anchor.setTo(0.5);
+
+	    GameScene.audioManager.music.pause();
+	    GameScene.audioManager.playSound(GameScene.audioManager.gameOverSound);
+
+	    GameScene.audioManager.gameOverSound.onStop.add(this.manageGameOver, this);
 	},
 
 	// Funcion que oscurece la pantalla al finalizar la partida
@@ -291,15 +295,16 @@ var GameScene = {
 		        pauseText.destroy();
 		    }
 		}	    
+	},
+
+	manageGameOver: function() {
+		this.game.state.start('gameover');
 	}
 };
 
 
 <!--FUNCIONES AUXILIARES-->
 
-<!--LÍNEAS-->
-
-<!--UI-->
 // Funcion que alinea el texto
 function alignText() {
     var center = scoreTitle.x + scoreTitle.textWidth / 2;
