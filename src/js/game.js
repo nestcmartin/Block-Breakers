@@ -56,6 +56,7 @@ var GameScene = {
 		this.createUI();
 
 		this.tetris = new Tetris(0, 0, this.game);
+		this.tetris.selectLevel(level);
 	},
 
 	createAudio: function() {
@@ -97,6 +98,7 @@ var GameScene = {
 		this.backgroundv = 5;		
 
 		// Separadores
+		this.bricks = this.game.add.tileSprite(nBlocksX * blockSize, 0, menuWidth, gameHeight, 'bricks', 0);
 	    this.middleSeparator = this.game.add.graphics(nBlocksX * blockSize, 0);
 	    this.middleSeparator.lineStyle(3, 0xffffff, 1);
 	    this.middleSeparator.lineTo(0, this.game.world.height);

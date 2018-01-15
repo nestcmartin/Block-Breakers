@@ -13,6 +13,7 @@ var MenuScene = {
 
 	preload: function() {
 		this.game.load.image('background', 'assets/starfield.png');
+		this.game.load.image('base', 'assets/base.png');
 	},
 
 	create: function () {
@@ -20,6 +21,7 @@ var MenuScene = {
 		// Creamos el fondo
 		this.background = this.game.add.tileSprite(0, 0, gameWidth, gameHeight, 'background')
 		this.backgroundv = 5;
+		this.base = this.game.add.sprite(-390, 50, 'base', 0)
 
 		// Creamos el texto
 		this.blockText = this.game.add.bitmapText(this.game.world.centerX, blockTextY, 'videogame', 'BLOCK', 64);
@@ -59,6 +61,7 @@ var MenuScene = {
 		// Eliminamos los botones anteriores
 		this.button.kill();
 		this.button2.kill();
+		this.makeShade();
 
 		// Mostramos el texto de selección de nivel
 		this.onePlayerText = this.game.add.bitmapText(this.game.world.centerX, onePlayerTextY, 'videogame', 'One Player', 40);
@@ -87,5 +90,12 @@ var MenuScene = {
     	this.buttonLV8.anchor.setTo(0.5);
     	this.buttonLV9 = this.game.add.button(this.game.world.centerX + buttonOffsetX, buttonY + buttonOffsetY * 4, 'level09', function() { this.startGame(9) }, this, 0, 2, 1);
     	this.buttonLV9.anchor.setTo(0.5);
+	},
+
+	makeShade: function() {
+	    this.shade = this.game.add.graphics(0, 0);
+	    this.shade.beginFill(0x000000, 0.6);
+	    this.shade.drawRect(0, 0, this.game.world.width, this.game.world.height);
+	    this.shade.endFill();
 	}
 };

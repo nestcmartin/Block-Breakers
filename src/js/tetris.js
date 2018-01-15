@@ -44,4 +44,15 @@ class Tetris {
 	    linesText.text = this.completedLines;
 	    this.updateTimer();
 	}
+
+	selectLevel(level) {
+
+		this.level = level;
+		
+		for(let i = 0; i < level; i++)
+		{
+	        this.loop.delay -= DROP_SPEEDUP;
+	        this.scoreIncrement += SCORE_BONUS;
+		}
+	}
 };
