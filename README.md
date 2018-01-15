@@ -12,3 +12,5 @@ Hemos extendido la versión sin Phaser para que funcione para dos jugadores.
 Hemos implementado los niveles y la cola de piezas para la versión de 1 jugador con Phaser.
 
 Hemos desarrollado una web para las presentaciones.
+
+La versión para un jugador implementa estados de juego, niveles de dificultad y su aspecto final completo.
