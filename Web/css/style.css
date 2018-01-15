@@ -131,6 +131,12 @@ nav ul li a:hover
         color:#962bd4;
 }
 
+main 
+{
+  margin: 2rem 0;
+  text-align: center;
+}
+
 #mobileMenu
 {
         position: fixed;
