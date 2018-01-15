@@ -6,7 +6,7 @@ var nBlocksY = 20;
 var finalScore = 0;
 var level = 0;
 
-var PIECES = 'ILJOTSZ';
+var PIECES = 'ILJOTSZB';
 var QUEUE_SIZE = 2;
 var DROP_TIME = Phaser.Timer.SECOND;
 var DROP_SPEEDUP = 90;
@@ -39,12 +39,14 @@ var GameScene = {
 		this.game.load.image('grid', 'assets/grid.png');
 		this.game.load.image('ground', 'assets/ground.png');		
 		this.game.load.image('bricks', 'assets/bricks.png');
+		this.game.load.spritesheet('boom', 'assets/explode.png', 128, 128);
 		this.game.load.spritesheet('blocks','assets/blocks.png', blockSize, blockSize, 8);
     	this.game.load.spritesheet('sound','assets/sound.png', 32, 32);
     	this.game.load.audio('move','assets/sound/move.mp3','assets/sound/move.ogg');    	
     	this.game.load.audio('click','assets/sound/click.mp3','assets/sound/click.ogg');	
     	this.game.load.audio('level','assets/sound/level.mp3','assets/sound/level.ogg');
     	this.game.load.audio('win','assets/sound/win.mp3','assets/sound/win.ogg');
+    	this.game.load.audio('boom','assets/sound/boom.mp3','assets/sound/boom.ogg');
     	this.game.load.audio('gameover','assets/sound/gameover.mp3','assets/sound/gameover.ogg');
 	},
 
@@ -66,6 +68,7 @@ var GameScene = {
 	    audioManager.clickSound = this.game.add.audio('click');
 	    audioManager.levelSound = this.game.add.audio('level');
 	    audioManager.winSound = this.game.add.audio('win');
+	    audioManager.boomSound = this.game.add.audio('boom');
 	    audioManager.gameOverSound = this.game.add.audio('gameover');
 	    audioManager.music = this.game.add.audio('music');
 	    audioManager.music.volume = 0.8;

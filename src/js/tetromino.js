@@ -67,7 +67,10 @@ class Tetromino {
             
             this.pos.y--;
             this.arena.merge(this);
-            audioManager.playSound(audioManager.clickSound);            
+            audioManager.playSound(audioManager.clickSound); 
+
+            if (this.type === 7) this.explode();
+
             this.reset();
 
             this.arena.sweep();
@@ -153,6 +156,31 @@ class Tetromino {
             matrix.reverse();
         }
     }
+
+    explode() {
+
+        for(let y = this.pos.y; y < this.pos.y + 3; y++)
+        {
+            for(let x = this.pos.x; x < this.pos.x + 3; x++)
+            {
+                if ((x >= 0 && x < nBlocksX) && y < nBlocksY && y >= 0) {
+                    this.tetris.arena.matrix[y][x] = 0;
+                }    
+            }
+        }
+
+        this.tetris.arena._sweepSprites();
+
+        var explosion = this.game.add.sprite(this.pos.x * blockSize, this.pos.y * blockSize, 'boom');
+        var explode = explosion.animations.add('explode');
+        explosion.animations.play('explode', 30, false);
+        audioManager.playSound(audioManager.boomSound);
+        explode.onComplete.add(function() { this._destroySprite(explosion) }, this);
+    }
+
+    _destroySprite(sprite) {
+        sprite.kill();
+    }
 }
 
 function createPiece(type) {
@@ -197,6 +225,18 @@ function createPiece(type) {
             [7, 7, 0],
             [0, 7, 7],
             [0, 0, 0],
+        ];
+    } else if (type === 'B') {
+        return [
+            [0, 0, 0,],
+            [0, 8, 0,],
+            [0, 0, 0,],
+        ];
+    } else if (type === 'D') {
+        return [
+            [0, 0, 0,],
+            [0, 9, 0,],
+            [0, 0, 0,],
         ];
     }
 }

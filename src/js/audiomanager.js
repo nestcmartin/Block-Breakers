@@ -8,6 +8,7 @@ class AudioManager {
 		this.clickSound = null;
 		this.levelSound = null;
 		this.winSound = null;
+		this.boomSound = null;
 		this.gameoverSound = null;
 		this.music = null;
 	}	
