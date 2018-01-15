@@ -15,22 +15,20 @@ var GameoverScene = {
 	    
 	    this.finalScoreTitle = this.game.add.bitmapText(this.game.world.centerX, 200, 'videogame', 'Final Score', 20);
 	    this.finalScoreTitle.anchor.setTo(0.5);
-	    this.finalScoreText = this.game.add.bitmapText(this.game.world.centerX, 230, 'desyrel', '0', 45);
+	    this.finalScoreText = this.game.add.bitmapText(this.game.world.centerX, 230, 'desyrel', finalScore, 45);
 	    this.finalScoreText.anchor.setTo(0.5);
 
 	    this.button = this.game.add.button(this.game.world.centerX, 400, 'exit', this.restartGame, this, 0, 2, 1);
 	    this.button.anchor.setTo(0.5);
-
-	    console.log("Game Over State success!");
 	},
 
 	update: function() {
-		this.finalScoreText.text = score;
+		this.finalScoreText.text = finalScore;
 		this.background.tilePosition.y += this.backgroundv;
 	},
 
 	restartGame() {
-		gameOver = false;
+		gameover = false;
 	    this.game.state.start('menu');
 	}
 

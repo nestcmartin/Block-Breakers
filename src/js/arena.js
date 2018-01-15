@@ -1,122 +1,105 @@
 'use strict';
 
-var fallenValue = 1;		// valor que toman en la matriz las casillas ocupadas
-var fallingValue = 2;		// valor que toman en la matriz las casillas en juego
-
 class Arena 
 {
-	constructor() {
-		this.arenaWidth = nBlocksX * blockSize;			// ancho del tablero de juego
-		this.arenaHeight = nBlocksY * blockSize;		// alto del tablero de juego
-		this.cells = [];								// matriz que ocupa el tablero de juego
-		this.arenaSprites = [];							// los sprites del tablero de juego
+	constructor(posX, posY, width, height, tetris, game) {
 
-		for (let i = 0; i < nBlocksX; i++) 
-		{
-			let col = [];
-			let spriteCol = [];
+		// Punteros
+		this.tetris = tetris;
+		this.game = game;
+    	
+    	// Atributos
+    	this.sprites = this.game.add.group();
+        this.pos = {x: posX, y: posY};
+        this.matrix = [];
 
-			for(let j = 0; j < nBlocksY; j++) 
-			{
-				col.push(0);
-				spriteCol.push(null);
-			}
+        while (height--) {
+            this.matrix.push(new Array(width).fill(0));
+        }
+    }
 
-			this.cells.push(col);
-			this.arenaSprites.push(spriteCol);
-		}
+    clear() {
+    	// Reiniciamos la matriz a 0
+        this.matrix.forEach(row => row.fill(0));
+    }
+
+    collide(player) {
+
+        const [m, pos] = [player.matrix, player.pos];
+
+        for (let y = 0; y < m.length; ++y) {
+            for (let x = 0; x < m[y].length; ++x) {
+                if (m[y][x] !== 0 && (this.matrix[y + pos.y] && this.matrix[y + pos.y][x + pos.x]) !== 0) 
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    merge(player) {
+
+        // Fusionamos el tetromino con el tablero
+        player.matrix.forEach((row, y) => {
+            row.forEach((value, x) => {
+                if (value !== 0) {
+                    this.matrix[y + player.pos.y][x + player.pos.x] = value;
+                    var sprite = this.sprites.create((player.pos.x + x) * blockSize, 
+                        (player.pos.y + y) * blockSize, 'blocks', value - 1);
+                }
+            });
+        });
+    }
+
+    sweep() {
+
+    	// Comprobamos las filas desde abajo
+        outer: for (let y = this.matrix.length - 1; y > 0; --y) {
+            for (let x = 0; x < this.matrix[y].length; ++x) {
+                if (this.matrix[y][x] === 0) {
+                    continue outer;
+                }
+            }
+
+            const row = this.matrix.splice(y, 1)[0].fill(0);
+            this.matrix.unshift(row);
+            ++y;
+
+            this.tetris.score += this.tetris.scoreIncrement;
+            this.tetris.completedLines++;
+            this.tetris.updateUI();
+
+            this._animateClean();
+            
+            audioManager.playSound(audioManager.winSound);
+        }
 	}
 
-	// Funcion que suma el valor de una linea
-	lineSum(l) {
-	    var sum = 0;
-	    	for (let i = 0; i < nBlocksX; i++) sum += this.cells[i][l];
-	    return sum;
+	_sweepSprites() {
+        // Limpiamos el grupo
+        this.sprites.forEachAlive(function(sprite) { sprite.kill(); });
+
+        // Asignamos los sprites
+        this.matrix.forEach((row, y) => {
+            row.forEach((value, x) => {
+                if (value !== 0) {
+                    var sprite = this.sprites.create((this.pos.x + x) * blockSize, 
+                        (this.pos.y + y) * blockSize, 'blocks', value - 1);
+                }
+            });
+        });
+    }
+
+    _animateClean() {
+		var tween = this.game.add.tween(this.sprites);
+	    tween.to( { alpha: 0 }, 300, Phaser.Easing.Linear.None, true, 0, 0, false);
+	    tween.onComplete.add(this._sweepSprites, this);
+	    tween.onComplete.add(this._restoreAlpha, this);
 	}
 
-	// Funcion que gestiona la eliminacion de lineas
-	checkLines(lines) {
-
-	    this.collapsedLines = [];
-
-	    for(let i = 0; i < lines.length; i++)
-	    {
-	        var sum = this.lineSum(lines[i]);
-
-	        if (sum == (nBlocksX * fallenValue)) 
-	        {
-	            
-	            this.collapsedLines.push(lines[i]);            
-	            this.cleanLine(lines[i]);
-	            updateScore();
-
-	            audioManager.playSound(audioManager.winSound);
-	        }
-	    }
-
-	    if (this.collapsedLines.length) this.collapse(this.collapsedLines);
+	_restoreAlpha() {
+		var tween = this.game.add.tween(this.sprites);
+	    tween.to( { alpha: 1 }, 300, Phaser.Easing.Linear.None, true, 0, 0, false);
 	}
-
-	// Funcion que limpia una linea completa
-	cleanLine(line) {
-
-	    this.delay = 0;
-
-	    for (let i = 0; i < nBlocksX; i++) 
-	    {
-	        animateClean(i, line, this.delay);
-
-	        this.arenaSprites[i][line] = null;
-	        this.cells[i][line] = 0;
-
-	        this.delay += 50;
-	    }
-	}
-
-	// Funcion que colapsa las lineas especificadas 
-	collapse(lines) {
-
-	    this.min = 999;
-
-	    // Solo colapsan las lineas por encima de la linea mas alta
-	    for(let i = 0; i < lines.length; i++)
-	    {
-	        if(lines[i] < this.min) this.min = lines[i];
-	    }
-	    
-	    for(let i = this.min - 1; i >= 0; i--)
-	    {
-	        for(let j = 0; j < nBlocksX; j++)
-	        {
-	            if(this.arenaSprites[j][i]) 
-	            {
-	                this.arenaSprites[j][i + lines.length] = this.arenaSprites[j][i];
-	                this.arenaSprites[j][i] = null;
-	                this.cells[j][i + lines.length] = fallenValue;
-	                this.cells[j][i] = 0;
-
-	                animateCollapse(i, j, lines.length);
-	            }
-	        }
-	    }    
-	}
-}
-
-// Funcion que destruye un sprite
-function destroy(sprite) {
-    sprite.destroy();
-}
-
-function animateClean(i, line, delay) {
-	var tween = GameScene.game.add.tween(arena.arenaSprites[i][line]);
-    tween.to( { y: 0 }, 500, null, false, delay);
-    tween.onComplete.add(destroy, this);
-    tween.start();
-}
-
-function animateCollapse(i, j, length) {
-	var tween = GameScene.game.add.tween(arena.arenaSprites[j][i + length]);
-    var new_y = arena.arenaSprites[j][i + length].y + (length * blockSize);
-    tween.to( { y: new_y }, 500, null, false);
-    tween.start();
 }

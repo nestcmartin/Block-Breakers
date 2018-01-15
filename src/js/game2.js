@@ -1,16 +1,13 @@
 'use strict';
 
-var arena2;
-var tetromino2;
-var loop2;
+var scoreText2;
 
 var Game2Scene = {
-
 	preload: function() {
 		this.game.load.image('grid', 'assets/grid.png');
 		this.game.load.image('ground', 'assets/ground.png');		
 		this.game.load.image('bricks', 'assets/bricks.png');
-		this.game.load.spritesheet('blocks','assets/blocks.png', blockSize, blockSize, nTypes + 1);
+		this.game.load.spritesheet('blocks','assets/blocks.png', blockSize, blockSize, 8);
     	this.game.load.spritesheet('sound','assets/sound.png', 32, 32);
     	this.game.load.audio('move','assets/sound/move.mp3','assets/sound/move.ogg');    	
     	this.game.load.audio('click','assets/sound/click.mp3','assets/sound/click.ogg');	
@@ -21,65 +18,19 @@ var Game2Scene = {
 
 	create: function() {
 
-		audioManager = new AudioManager();
+	    this.createAudio();
+		this.createInput();
 
-		// Inicializacion del sistema de input
-		cursors = this.game.input.keyboard.createCursorKeys();
-		rotates = {
-			counterClockwise: this.game.input.keyboard.addKey(Phaser.Keyboard.Q),			
-			clockwise: this.game.input.keyboard.addKey(Phaser.Keyboard.W)
-		};
-		rotates.clockwise.onDown.add(this.manageRotateW, this);
-		rotates.counterClockwise.onDown.add(this.manageRotateQ, this);
-		pauseButton = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-		pauseButton.onDown.add(this.managePauseScreen, this);
+		this.createArena();
+		this.createUI();
 
-		// Creacion del tablero de juego
-		arena = new Arena();
-		arena2 = new Arena();	
+		this.tetris = new Tetris(0, 0, this.game);
+		this.tetris2 = new Tetris(nBlocksX + 10, 0, this.game);
+	},
 
-		this.background = this.game.add.tileSprite(0, 0, nBlocksX * blockSize, nBlocksY * blockSize, 'background')
-		this.background2 = this.game.add.tileSprite(nBlocksX * blockSize + menuWidth, 0, nBlocksX * blockSize, nBlocksY * blockSize, 'background')
-		this.backgroundv = 5;		
-
-	    this.middleSeparator = this.game.add.graphics(nBlocksX * blockSize, 0);
-	    this.middleSeparator.lineStyle(3, 0xffffff, 1);
-	    this.middleSeparator.lineTo(0, this.game.world.height);
-	    this.middleSeparator2 = this.game.add.graphics(nBlocksX * blockSize + menuWidth, 0);
-	    this.middleSeparator2.lineStyle(3, 0xffffff, 1);
-	    this.middleSeparator2.lineTo(0, this.game.world.height);
-
-	    this.game.add.tileSprite(0, this.game.world.height - blockSize, nBlocksX * blockSize, blockSize,'ground', 0);
-	    this.game.add.tileSprite(nBlocksX * blockSize + menuWidth, this.game.world.height - blockSize, nBlocksX * blockSize, blockSize,'ground', 0);
-
-	    // Creacion de la interfaz de usuario
-	    this.bricks = this.game.add.tileSprite(nBlocksX * blockSize, 0, menuWidth, gameHeight, 'bricks', 0);
-
-	    this.sound = this.game.add.sprite(this.game.world.width - 38, 0, 'sound', 0);
-	    this.sound.inputEnabled = true;
-	    this.sound.events.onInputDown.add(audioManager.toggleSound, this);
-
-	    scoreTitle = this.game.add.bitmapText(nBlocksX * blockSize + 50, 40, 'videogame', 'Score', 40);
-	    scoreText = this.game.add.bitmapText(scoreX, 80, 'desyrel', '0', 64);
-
-	    this.linesTitle = this.game.add.bitmapText(nBlocksX * blockSize + 50, 180, 'videogame', 'Lines', 40);
-	    linesText = this.game.add.bitmapText(scoreX, 220, 'desyrel', '0', 64);
-
-	    this.nextTitle = this.game.add.bitmapText(nBlocksX * blockSize + 75, 360, 'videogame', 'Next', 40);
-	    alignText();
-
-	    this.grid = this.game.add.sprite(nBlocksX * blockSize + 97, 418, 'grid', 0);
-
-	    this.nextTitle.x = scoreTitle.x + scoreTitle.textWidth / 2 - (this.nextTitle.textWidth * 0.5);
-	    this.linesTitle.x = scoreTitle.x + scoreTitle.textWidth / 2 - (this.linesTitle.textWidth * 0.5);	   
-
-	    // Inicializacion del drop timer
-	    timer = this.game.time.events;
-	    loop = timer.loop(dropTime, function() { this.drop(tetromino) }, this);
-	    loop2 = timer.loop(dropTime, function() { this.drop(tetromino2) }, this);
-	    timer.start();
-
-	    // Inicializacion del sistema de audio
+	createAudio: function() {
+		// Inicializacion del sistema de audio
+	    audioManager = new AudioManager();
 	    audioManager.moveSound = this.game.add.audio('move');	    
 	    audioManager.clickSound = this.game.add.audio('click');
 	    audioManager.levelSound = this.game.add.audio('level');
@@ -88,130 +39,107 @@ var Game2Scene = {
 	    audioManager.music = this.game.add.audio('music');
 	    audioManager.music.volume = 0.8;
 	    audioManager.music.loopFull();
+	},
 
-	    selectLevel(level);
+	createInput: function() {
 
-	    this.manageTetrominos();
+		// Movimientos
+		cursors = this.game.input.keyboard.createCursorKeys();
+
+		// Rotaciones
+		rotates = {
+			counterClockwise: this.game.input.keyboard.addKey(Phaser.Keyboard.Q),			
+			clockwise: this.game.input.keyboard.addKey(Phaser.Keyboard.W)
+		};
+		rotates.clockwise.onDown.add(function() { this.manageRotation(true) }, this);
+		rotates.counterClockwise.onDown.add(function() { this.manageRotation(false) }, this);
+
+		// Pausa
+		pauseButton = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+		pauseButton.onDown.add(this.managePauseScreen, this);
+	},
+
+	createArena: function() {
+
+		// Fondo del tablero
+		this.background = this.game.add.tileSprite(0, 0, nBlocksX * blockSize, nBlocksY * blockSize, 'background')
+		this.background2 = this.game.add.tileSprite(nBlocksX * blockSize + menuWidth, 0, nBlocksX * blockSize, nBlocksY * blockSize, 'background')
+		this.backgroundv = 5;		
+
+		// Separadores
+	    this.middleSeparator = this.game.add.graphics(nBlocksX * blockSize, 0);
+	    this.middleSeparator.lineStyle(3, 0xffffff, 1);
+	    this.middleSeparator.lineTo(0, this.game.world.height);
+	    this.middleSeparator2 = this.game.add.graphics(nBlocksX * blockSize + menuWidth, 0);
+	    this.middleSeparator2.lineStyle(3, 0xffffff, 1);
+	    this.middleSeparator2.lineTo(0, this.game.world.height);
+
+	    // Suelo del tablero
+	    this.game.add.tileSprite(0, this.game.world.height - blockSize, nBlocksX * blockSize, blockSize,'ground', 0);
+	    this.game.add.tileSprite(nBlocksX * blockSize + menuWidth, this.game.world.height - blockSize, nBlocksX * blockSize, blockSize,'ground', 0);
+	},
+
+	createUI: function() {
+		// Icono de sonido
+	    this.sound = this.game.add.sprite(this.game.world.width / 2, 0, 'sound', 0);
+	    this.sound.inputEnabled = true;
+	    this.sound.events.onInputDown.add(audioManager.toggleSound, this);
+
+	    // Puntuación P1
+	    scoreTitle = this.game.add.bitmapText(nBlocksX * blockSize + 50, 40, 'videogame', 'Score', 40);
+	    scoreText = this.game.add.bitmapText(scoreX, 80, 'desyrel', '0', 64);
+
+	    // Puntuación P2
+	    scoreTitle = this.game.add.bitmapText(nBlocksX * blockSize + 50, 180, 'videogame', 'Score', 40);
+	    scoreText2 = this.game.add.bitmapText(scoreX, 220, 'desyrel', '0', 64);	  
+	    this.alignText();
+	},
+
+	alignText: function() {
+	    var center = scoreTitle.x + scoreTitle.textWidth / 2;
+	    scoreText.x = center - (scoreText.textWidth * 0.5);
+	    scoreText2.x = center - (scoreText2.textWidth * 0.5);
 	},
 
 	update: function() {
+
 		this.background.tilePosition.y += this.backgroundv;
 		this.background2.tilePosition.y += this.backgroundv;
 
 		moveTimer += this.time.elapsed;
-
 	    if (moveTimer > movementLag) 
 	    {	        
 	        if (cursors.left.isDown)
 	        {
-	            if (tetromino.canMove(slide, "left")) tetromino.move(slide, slideCenter, "left");	            
+	            this.tetris.player.move(-1);          
 	        }
 	        else if (cursors.right.isDown)
 	        {
-	            if (tetromino.canMove(slide, "right")) tetromino.move(slide, slideCenter, "right");	            
+	            this.tetris.player.move(1);  
 	        }
 	        else if (cursors.down.isDown)
 	        {
-	            if (tetromino.canMove(slide, "down")) tetromino.move(slide, slideCenter, "down");
+	            this.tetris.player.fastDrop(1);
 	        }
-	       
+
 	        moveTimer = 0;
 	    }
+
+	    if(gameover) this.manageGameOver();
 	},
 
-	manageRotateQ: function() {
-		if (tetromino.canMove(rotate, "clockwise")) 
-			tetromino.move(rotate, null, "clockwise");
-	},
+	manageRotation: function(clockwise, player) {
 
-	manageRotateW: function() {
-		if (tetromino.canMove(rotate, "counterclockwise")) 
-			tetromino.move(rotate, null, "counterclockwise");
-	},
-	
-	// Funcion que gestiona la aparición de los tetrominos
-	manageTetrominos: function() {
-
-		// Gestionamos la cola de tetrominos
-		tetromino = new Tetromino();
-	    tetromino2 = new Tetromino();
-
-	    // Colocamos el tetromino en el tablero
-	    var start_x = Math.floor(nBlocksX / 2);
-	    var start_y = y_start[tetromino.shape];    
-	    var conflict = tetromino.materialize(start_x, start_y, true, this.game);
-
-	    var start_x2 = Math.floor(gameWidth - nBlocksX / 2);
-	    var start_y2 = y_start[tetromino2.shape];    
-	    var conflict2 = tetromino2.materialize(start_x2, start_y2, true, this.game);
-	    
-	    if (conflict) this.gameOver();
-	    if (conflict2) this.gameOver();
-	},
-
-	// HAY QUE PASAR LA ARENA
-	// Funcion que gestiona la caida de los tetronimos
-	drop: function(tetr) {
-
-	    if (pause || gameOver) { return; }
-
-	    // Desplazamos el tetromino hacia abajo
-	    if (tetr.canMove(slide, "down")) tetr.move(slide, slideCenter, "down");
-	    else
-	    { 
-	    	// Si no podemos es porque se ha producido una colision con el suelo o con una linea
-	    	// Añadimos todas las lineas de nuestro tetromino a una lista
-	    	// Realizamos el merge del tetronimo y el tablero de juego
-	    	// Comprobamos si alguna de las lineas que ocupa nuestro tetromino esta compelta
-
-	        var lines = [];
-
-	        for(let i = 0; i < tetr.cells.length; i++)
-	        {
-	            if (lines.indexOf(tetr.cells[i][1]) == -1) lines.push(tetr.cells[i][1]);
-
-	            var x = tetr.cells[i][0];
-	            var y = tetr.cells[i][1];
-
-	            arena.cells[x][y] = fallenValue;
-	            arena.arenaSprites[tetr.cells[i][0]][tetr.cells[i][1]] = tetr.sprites[i];
-	        }
-
-	        audioManager.playSound(audioManager.clickSound);
-
-	        arena.checkLines(lines);
-	        this.manageTetrominos();
-    	}
-	},
-
-	// Funcion que gestiona el fin de partida
-	gameOver: function() {
-	    gameOver = true;
-
-	    this.makeShade();
-
-	    this.gameover = this.game.add.bitmapText(this.game.world.centerX, this.game.world.centerY, 'videogame', 'GAME OVER', 64);
-	    this.gameover.anchor.setTo(0.5);
-
-	    audioManager.music.pause();
-	    audioManager.playSound(audioManager.gameOverSound);
-
-	    audioManager.gameOverSound.onStop.add(this.manageGameOver, this);
-	},
-
-	// Funcion que oscurece la pantalla al finalizar la partida
-	makeShade: function() {
-	    shade = this.game.add.graphics(0, 0);
-	    shade.beginFill(0x000000, 0.6);
-	    shade.drawRect(0, 0, this.game.world.width, this.game.world.height);
-	    shade.endFill();
+		if (clockwise) this.tetris.player.rotate(-1);
+		else this.tetris.player.rotate(1);
 	},
 
 	managePauseScreen: function() {
 
-		if(!gameOver)
+		if(!gameover)
 		{
 			pause = !pause;
+			this.tetris.timer.pause();
 	    
 		    if(pause)
 		    {
@@ -223,17 +151,32 @@ var Game2Scene = {
 		    }
 		    else
 		    {
-		        timer.resume();
+		    	this.tetris.timer.resume();
 		        audioManager.playMusic();
-		        shade.clear();
+		        this.shade.clear();
 		        pauseText.destroy();
 		    }
 		}	    
 	},
 
+	makeShade: function() {
+	    this.shade = this.game.add.graphics(0, 0);
+	    this.shade.beginFill(0x000000, 0.6);
+	    this.shade.drawRect(0, 0, this.game.world.width, this.game.world.height);
+	    this.shade.endFill();
+	},
+
 	manageGameOver: function() {
-		level = 0;
-		timer.stop();
+
+		this.tetris.timer.stop();
+
+	    audioManager.music.stop();
+	    audioManager.playSound(audioManager.gameOverSound);
+
+	    audioManager.gameOverSound.onStop.add(this.gameOver, this);
+	},
+
+	gameOver: function() {
 		this.game.state.start('gameover');
 	}
 };
