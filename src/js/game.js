@@ -24,6 +24,8 @@ var gameover = false;	// variable de control para gestionar el fin de partida
 var cursors;			// el input de usuario (movimientos)
 var rotates;			// el input de usuario (rotaciones)
 var pauseButton;		// el input de usuario (pausa)
+var pvpButton;
+var escButton;
 var audioManager;		// el gestor de sonidos
 
 // UI
@@ -93,6 +95,14 @@ var GameScene = {
 		// Pausa
 		pauseButton = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 		pauseButton.onDown.add(this.managePauseScreen, this);
+
+		// 2P
+		pvpButton = this.game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+		pvpButton.onDown.add(this.managePVP, this);
+
+		// Volver al Menú
+		escButton = this.game.input.keyboard.addKey(Phaser.Keyboard.ESC);
+		escButton.onDown.add(this.backToMenu, this);
 	},
 
 	createArena: function() {
@@ -172,25 +182,28 @@ var GameScene = {
 		this.alignText();
 		this.background.tilePosition.y += this.backgroundv;
 		this.background2.tilePosition.y += this.backgroundv;
+		
+		if (!pause) 
+		{
+			movetimer += this.time.elapsed;
+		    if (movetimer > movementLag) 
+		    {	        
+		        if (cursors.left.isDown)
+		        {
+		            this.tetris.player.move(-1);          
+		        }
+		        else if (cursors.right.isDown)
+		        {
+		            this.tetris.player.move(1);  
+		        }
+		        else if (cursors.down.isDown)
+		        {
+		            this.tetris.player.fastDrop(1);
+		        }
 
-		movetimer += this.time.elapsed;
-	    if (movetimer > movementLag) 
-	    {	        
-	        if (cursors.left.isDown)
-	        {
-	            this.tetris.player.move(-1);          
-	        }
-	        else if (cursors.right.isDown)
-	        {
-	            this.tetris.player.move(1);  
-	        }
-	        else if (cursors.down.isDown)
-	        {
-	            this.tetris.player.fastDrop(1);
-	        }
-
-	        movetimer = 0;
-	    }
+		        movetimer = 0;
+		    }
+		}
 
 	    this.nextTetromino();
 
@@ -226,6 +239,18 @@ var GameScene = {
 		        audioManager.playMusic();
 		    }
 		}	    
+	},
+
+	managePVP: function() {
+		this.tetris.timer.stop();
+	    audioManager.music.stop();
+	    this.game.state.start('game2');
+	},
+
+	backToMenu: function() {
+		this.tetris.timer.stop();
+	    audioManager.music.stop();
+	    this.game.state.start('menu');
 	},
 
 	makeShade: function() {

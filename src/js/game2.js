@@ -73,6 +73,10 @@ var Game2Scene = {
 		// Pausa
 		pauseButton = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 		pauseButton.onDown.add(this.managePauseScreen, this);
+
+		// Volver al Menú
+		escButton = this.game.input.keyboard.addKey(Phaser.Keyboard.ESC);
+		escButton.onDown.add(this.backToMenu, this);
 	},
 
 	createArena: function() {
@@ -125,9 +129,9 @@ var Game2Scene = {
 		this.background.tilePosition.y += this.backgroundv;
 		this.background2.tilePosition.y += this.backgroundv;
 
-	    this.handleInput();
+	    if (!pause) this.handleInput();
 
-	    if(gameover || gameover2) this.manageGameOver();
+	    if (gameover || gameover2) this.manageGameOver();
 	},
 
 	alignText: function() {
@@ -210,6 +214,12 @@ var Game2Scene = {
 		        audioManager.playMusic();
 		    }
 		}	    
+	},
+
+	backToMenu: function() {
+		this.tetris.timer.stop();
+	    audioManager.music.stop();
+	    this.game.state.start('menu');
 	},
 
 	makeShade: function() {
