@@ -14,3 +14,5 @@ Hemos implementado los niveles y la cola de piezas para la versión de 1 jugador
 Hemos desarrollado una web para las presentaciones.
 
 La versión para un jugador implementa estados de juego, niveles de dificultad y su aspecto final completo.
+
+Hemos implementado la primera versión deljuego para 2 jugadores y la pieza bomba.
