@@ -4,3 +4,5 @@ TODO:
 -Fix pvp score and lines
 -Add Credits
 -Add Controls
+-Add more audio
+-Add TETRIS pvp
