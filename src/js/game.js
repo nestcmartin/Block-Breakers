@@ -132,6 +132,8 @@ var GameScene = {
 	    this.sound.inputEnabled = true;
 	    this.sound.events.onInputDown.add(audioManager.toggleSound, this);
 
+	    this.p2Text = this.game.add.bitmapText(nBlocksX * blockSize + menuWidth + 30, this.game.world.height / 2, 'videogame', 'PRESS ENTER', 30);
+
 	    // Puntuación
 	    this.scoreTitle = this.game.add.bitmapText(nBlocksX * blockSize + 50, 40, 'videogame', 'Score', 40);
 	    scoreText = this.game.add.bitmapText(scoreX, 80, 'desyrel', '0', 64);
