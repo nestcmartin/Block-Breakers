@@ -13,9 +13,12 @@ var DROP_SPEEDUP = 90;
 var SCORE_BONUS = 25;
 var LINES_THRESHOLD = 10;
 
+var MATRIX_SIZE = 4;
+var BOMB_RADIUS = 3;
+
 // Jugabilidad
 var movementLag = 50;	// retardo entre pulsaciones de tecla (ms)
-var moveTimer = 0;		// contador para evitar movimientos excesivamente rapidos
+var movetimer = 0;		// contador para evitar movimientos excesivamente rapidos
 var pause = false;		// variable de control para festionar la pausa del juego
 var gameover = false;	// variable de control para gestionar el fin de partida
 var cursors;			// el input de usuario (movimientos)
@@ -24,10 +27,9 @@ var pauseButton;		// el input de usuario (pausa)
 var audioManager;		// el gestor de sonidos
 
 // UI
-var scoreText;		// puntuacion
-var linesText;		// texto Lines
-
-var menuWidth = 320;									// tamaño del menu principal
+var scoreText;											// puntuacion
+var linesText;											// texto Lines
+var menuWidth = 10 * blockSize;							// tamaño del menu principal
 var gameWidth = 2 * nBlocksX * blockSize + menuWidth;	// ancho de la pantalla de juego
 var gameHeight = nBlocksY * blockSize + blockSize;		// alto de la pantalla de juego
 var scoreX = nBlocksX * blockSize + 90;					// posicion del marcador de puntuacion
@@ -171,8 +173,8 @@ var GameScene = {
 		this.background.tilePosition.y += this.backgroundv;
 		this.background2.tilePosition.y += this.backgroundv;
 
-		moveTimer += this.time.elapsed;
-	    if (moveTimer > movementLag) 
+		movetimer += this.time.elapsed;
+	    if (movetimer > movementLag) 
 	    {	        
 	        if (cursors.left.isDown)
 	        {
@@ -187,7 +189,7 @@ var GameScene = {
 	            this.tetris.player.fastDrop(1);
 	        }
 
-	        moveTimer = 0;
+	        movetimer = 0;
 	    }
 
 	    this.nextTetromino();

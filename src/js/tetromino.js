@@ -159,12 +159,12 @@ class Tetromino {
 
     explode() {
 
-        for(let y = this.pos.y; y < this.pos.y + 3; y++)
+        for(let y = this.pos.y; y < this.pos.y + BOMB_RADIUS; y++)
         {
-            for(let x = this.pos.x; x < this.pos.x + 3; x++)
+            for(let x = this.pos.x; x < this.pos.x + BOMB_RADIUS; x++)
             {
-                if ((x >= 0 && x < nBlocksX) && y < nBlocksY && y >= 0) {
-                    this.tetris.arena.matrix[y][x] = 0;
+                if (((x >= 0 + this.tetris.arena.pos.x) && (x < nBlocksX + this.tetris.arena.pos.x)) && ((y < nBlocksY) && (y >= 0))) {
+                    this.tetris.arena.matrix[y][x - this.tetris.arena.pos.x] = 0;
                 }    
             }
         }

@@ -25,11 +25,12 @@ class Arena
 
     collide(player) {
 
-        const [m, pos] = [player.matrix, player.pos];
+        const [playerMatrix, playerPos] = [player.matrix, player.pos];
 
-        for (let y = 0; y < m.length; ++y) {
-            for (let x = 0; x < m[y].length; ++x) {
-                if (m[y][x] !== 0 && (this.matrix[y + pos.y] && this.matrix[y + pos.y][x + pos.x]) !== 0) 
+        for (let y = 0; y < playerMatrix.length; ++y) {
+            for (let x = 0; x < playerMatrix[y].length; ++x) {
+                if (playerMatrix[y][x] !== 0 && 
+                    (this.matrix[y + playerPos.y] && this.matrix[y + playerPos.y][x + playerPos.x - this.pos.x]) !== 0) 
                 {
                     return true;
                 }
@@ -44,7 +45,7 @@ class Arena
         player.matrix.forEach((row, y) => {
             row.forEach((value, x) => {
                 if (value !== 0) {
-                    this.matrix[y + player.pos.y][x + player.pos.x] = value;
+                    this.matrix[y + player.pos.y][x + player.pos.x - this.pos.x] = value;
                     var sprite = this.sprites.create((player.pos.x + x) * blockSize, 
                         (player.pos.y + y) * blockSize, 'blocks', value - 1);
                 }
