@@ -100,7 +100,7 @@ var Game2Scene = {
 		// Icono de sonido
 	    this.sound = this.game.add.sprite(this.game.world.width / 2 + 4 * offsetX / 3, 0, 'sound', 0);
 	    this.sound.inputEnabled = true;
-	    this.sound.events.onInputDown.add(audioManager.toggleSound, this);
+	    this.sound.events.onInputDown.add(audioManager.toggleSound, audioManager);
 
 	    // Puntuación y Líneas
 	    this.scoreTitle = this.game.add.bitmapText(BLOCKS_X * BLOCK_SIZE + uiOffsetX, uiOffsetY, 'videogame', 'Score', 40);
