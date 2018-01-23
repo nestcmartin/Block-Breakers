@@ -59,7 +59,7 @@ class Tetromino {
     }
 
     drop() {
-
+        
         // Movemos el tetromino
         this.pos.y++;
         

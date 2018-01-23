@@ -12,6 +12,7 @@ window.onload = function () {
   game.state.add('game', GameScene);            // La escena de juego principal
   game.state.add('game2', Game2Scene);          // La escena de juego pvp
   game.state.add('gameover', GameoverScene);    // El final del juego
+  game.state.add('credits', CreditsScene);      // La escena de créditos
 
   // Iniciamos el juego
   game.state.start('boot');
@@ -46,7 +47,8 @@ var PreloaderScene = {
 
     // Cargamos los botones del menú principal
     this.game.load.spritesheet('button', 'assets/p1.png', 137, 37);    
-    this.game.load.spritesheet('button2', 'assets/p2.png', 137, 37);
+    this.game.load.spritesheet('button2', 'assets/p2.png', 137, 37); 
+    this.game.load.spritesheet('button3', 'assets/credits.png', 137, 37);
     this.game.load.spritesheet('level00', 'assets/level00.png', 137, 37);
     this.game.load.spritesheet('level01', 'assets/level01.png', 137, 37);   
     this.game.load.spritesheet('level02', 'assets/level02.png', 137, 37);
@@ -61,6 +63,7 @@ var PreloaderScene = {
     // Cargamos la música
     this.game.load.audio('menuMusic', 'assets/sound/menu.mp3');
     this.game.load.audio('music', 'assets/sound/tetris.mp3');
+    this.game.load.audio('creditsMusic', 'assets/sound/credits.mp3');
   },
 
   create: function () {

@@ -1,0 +1,24 @@
+BLOCK BREAKERS
+a game based on Tetris
+by Garzoners
+
+GAME DESIGN & DEVELOPMENT:
+Néstor Cabrero
+
+Martín Amechazurra
+
+MUSIC:
+"Blue Space"
+by FoxSynergy
+
+"Korobeiniki"
+by ElectronicArts
+
+"Korobeiniki"
+by Dave Wave
+
+SOUND EFFECTS:
+Little Robot Sound Factory
+www.littlerobotsoundfactory.com
+
+Zander Noriega

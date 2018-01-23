@@ -1,7 +1,5 @@
 'use strict';
 
-var cursors2;
-
 var Game2Scene = {
 
 	preload: function() {

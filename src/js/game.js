@@ -9,18 +9,20 @@ var GAME_W = 2 * BLOCKS_X * BLOCK_SIZE + MENU_W;	// ancho de la pantalla de jueg
 var GAME_H = BLOCKS_Y * BLOCK_SIZE + BLOCK_SIZE;	// alto de la pantalla de juego
 var UI_X = BLOCKS_X * BLOCK_SIZE + offsetX;			// posición de los textos de la UI
 
-//JUGABILIDAD
+// VARIABLES
 var LEVEL = 0;			// nivel seleccionado
-var INPUT_LAG = 50;		// retardo entre pulsaciones de tecla (ms)
 var FINAL_SCORE = 0;	// puntuación final para mostrar en Game Over
 var pause = false;		// variable de control para gestionar la pausa del juego
 var gameover = false;	// variable de control para gestionar el fin de partida
-var cursors;			// el input de usuario (movimientos)
-var rotates;			// el input de usuario (rotaciones)
-var pauseButton;		// el input de usuario (menú de pausa)
-var pvpButton;			// el input de usuario (modo 2 jugadores)
-var escButton;			// el input de usuario (volver al menú)
-var audioManager;		// el gestor de sonidos
+
+// INPUT
+var INPUT_LAG = 50;	// retardo entre pulsaciones de tecla (ms)
+var cursors;		// el input de usuario (movimientos)
+var cursors2;		// el input de usuario (movimientos 2)
+var rotates;		// el input de usuario (rotaciones)
+var pauseButton;	// el input de usuario (menú de pausa)
+var pvpButton;		// el input de usuario (modo 2 jugadores)
+var escButton;		// el input de usuario (volver al menú)
 
 var GameScene = {
 

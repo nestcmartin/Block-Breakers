@@ -1,8 +1,1 @@
-TODO:
 
--Fix pause screen bugs
--Fix pvp score and lines
--Add Credits
--Add Controls
--Add more audio
--Add TETRIS pvp: cuando estás jugando a dos jugadores, si completas más de una línea a la vez, las líneas que completas se añaden a la parte de abajo de la arena del otro jugador

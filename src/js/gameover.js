@@ -34,5 +34,4 @@ var GameoverScene = {
 		gameover = false;
 	    this.game.state.start('menu');
 	}
-
 };

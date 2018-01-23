@@ -36,6 +36,8 @@ var MenuScene = {
 	    this.button.anchor.setTo(0.5);
 	    this.button2 = this.game.add.button(this.game.world.centerX, menuButtonY + offsetY, 'button2', this.startGame2, this, 0, 2, 1);
 	    this.button2.anchor.setTo(0.5);
+	    this.button3 = this.game.add.button(this.game.world.centerX, menuButtonY + 2 * offsetY, 'button3', this.goToCredits, this, 0, 2, 1);
+	    this.button3.anchor.setTo(0.5);
 
 	    // Creamos la música
 	    this.menuMusic = this.game.add.audio('menuMusic');
@@ -92,6 +94,11 @@ var MenuScene = {
     	this.buttonLV8.anchor.setTo(0.5);
     	this.buttonLV9 = this.game.add.button(this.game.world.centerX + offsetX, menuButtonY + offsetY * 4, 'level09', function() { this.startGame(9) }, this, 0, 2, 1);
     	this.buttonLV9.anchor.setTo(0.5);
+	},
+
+	goToCredits: function() {
+		this.game.state.start('credits');
+	    this.menuMusic.stop();
 	},
 
 	makeShade: function() {

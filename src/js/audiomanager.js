@@ -1,5 +1,7 @@
 'use strict';
 
+var audioManager;
+
 class AudioManager {
 
 	constructor() {
