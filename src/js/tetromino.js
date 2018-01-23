@@ -1,5 +1,7 @@
 'use strict';
 
+var BOMB_RADIUS = 3;
+
 class Tetromino {
 
     constructor(tetris, game) {
@@ -35,7 +37,6 @@ class Tetromino {
         
         // Comprobamos colisiones
         if (this.arena.collide(this)) {
-            finalScore = this.tetris.score;
             gameover = true;
         }
         else this._placeSprites();
@@ -50,8 +51,8 @@ class Tetromino {
         this.matrix.forEach((row, y) => {
             row.forEach((value, x) => {
                 if (value !== 0) {
-                    var sprite = this.sprites.create((this.pos.x + x) * blockSize, 
-                        (this.pos.y + y) * blockSize, 'blocks', value - 1);
+                    var sprite = this.sprites.create((this.pos.x + x) * BLOCK_SIZE, 
+                        (this.pos.y + y) * BLOCK_SIZE, 'blocks', value - 1);
                 }
             });
         });
@@ -163,7 +164,7 @@ class Tetromino {
         {
             for(let x = this.pos.x; x < this.pos.x + BOMB_RADIUS; x++)
             {
-                if (((x >= 0 + this.tetris.arena.pos.x) && (x < nBlocksX + this.tetris.arena.pos.x)) && ((y < nBlocksY) && (y >= 0))) {
+                if (((x >= 0 + this.tetris.arena.pos.x) && (x < BLOCKS_X + this.tetris.arena.pos.x)) && ((y < BLOCKS_Y) && (y >= 0))) {
                     this.tetris.arena.matrix[y][x - this.tetris.arena.pos.x] = 0;
                 }    
             }
@@ -171,7 +172,7 @@ class Tetromino {
 
         this.tetris.arena._sweepSprites();
 
-        var explosion = this.game.add.sprite(this.pos.x * blockSize, this.pos.y * blockSize, 'boom');
+        var explosion = this.game.add.sprite(this.pos.x * BLOCK_SIZE, this.pos.y * BLOCK_SIZE, 'boom');
         var explode = explosion.animations.add('explode');
         explosion.animations.play('explode', 30, false);
         audioManager.playSound(audioManager.boomSound);
@@ -230,12 +231,6 @@ function createPiece(type) {
         return [
             [0, 0, 0,],
             [0, 8, 0,],
-            [0, 0, 0,],
-        ];
-    } else if (type === 'D') {
-        return [
-            [0, 0, 0,],
-            [0, 9, 0,],
             [0, 0, 0,],
         ];
     }

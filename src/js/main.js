@@ -3,7 +3,7 @@
 window.onload = function () {
 
   // The Game; you loose
-  var game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game');
+  var game = new Phaser.Game(GAME_W, GAME_H, Phaser.AUTO, 'game');
 
   // Creamos los estados de juego
   game.state.add('boot', BootScene);            // Carga de assets para la pantalla de carga

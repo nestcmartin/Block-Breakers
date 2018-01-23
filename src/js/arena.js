@@ -46,8 +46,8 @@ class Arena
             row.forEach((value, x) => {
                 if (value !== 0) {
                     this.matrix[y + player.pos.y][x + player.pos.x - this.pos.x] = value;
-                    var sprite = this.sprites.create((player.pos.x + x) * blockSize, 
-                        (player.pos.y + y) * blockSize, 'blocks', value - 1);
+                    var sprite = this.sprites.create((player.pos.x + x) * BLOCK_SIZE, 
+                        (player.pos.y + y) * BLOCK_SIZE, 'blocks', value - 1);
                 }
             });
         });
@@ -85,8 +85,8 @@ class Arena
         this.matrix.forEach((row, y) => {
             row.forEach((value, x) => {
                 if (value !== 0) {
-                    var sprite = this.sprites.create((this.pos.x + x) * blockSize, 
-                        (this.pos.y + y) * blockSize, 'blocks', value - 1);
+                    var sprite = this.sprites.create((this.pos.x + x) * BLOCK_SIZE, 
+                        (this.pos.y + y) * BLOCK_SIZE, 'blocks', value - 1);
                 }
             });
         });
