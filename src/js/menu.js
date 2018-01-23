@@ -65,6 +65,7 @@ var MenuScene = {
 		// Eliminamos los botones anteriores
 		this.button.kill();
 		this.button2.kill();
+		this.button3.kill();
 		this.makeShade();
 
 		// Mostramos el texto de selección de nivel
